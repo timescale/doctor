@@ -1,8 +1,4 @@
-"""Rule to find hypertable candidates.
-
-This rule will find all tables in a database that are candidates for
-turning into a hypertable.
-"""
+"""Rules for hypertables."""
 
 QUERY = """
 SELECT relid::regclass AS table,

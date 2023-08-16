@@ -9,10 +9,32 @@ necessary.
 import psycopg2
 import glob
 import importlib
+import textwrap
 
 from os.path import dirname, basename, isfile, join
 from psycopg2.extras import RealDictCursor
 
+class Printer:
+    """Class to handle printing of reports."""
+
+    def __init__(self, category):
+        """Create a printer and set the category."""
+        self.__category = category
+        self.__header_printed = False
+        self.__wrapper = textwrap.TextWrapper(
+            initial_indent="- ",
+            subsequent_indent="  ",
+        )
+
+    def report(self, report):
+        """Print a report and the category if not printed."""
+        if not self.__header_printed:
+            print(f"{self.__category}:")
+            self.__header_printed = True
+        print(self.__wrapper.fill(report))
+
+# Rules are organized in a two-level hierarchy with the category as
+# the top-level object and the functions below.
 RULES = {}
 
 class Rule:
@@ -43,46 +65,43 @@ class Rule:
 
         By default, the function documentation is used as the template
         text.
-
         """
         self.__func = func
         self.__text = func.__doc__ if text is None else text
 
     def check_and_report(self, conn):
-        """Check rule and report mismatching objects.
+        """Check rule and return report on mismatching objects.
         
-        # Parameters
-
         conn: Connection to use when checking rule.
         """
         cursor = conn.cursor()
         self.__func(cursor)
-        for kwrds in cursor:
-            print(self.__text.format(**dict(kwrds)))
+        return [self.__text.format(**dict(kwrds)) for kwrds in cursor]
 
 
-def rule(name):
+def rule(path):
     """Decorate rules.
 
     If you want to add a new rule to the system, put it in a separate
     file in this directory and use the decorator to define a new
     rule. If the rule returns any objects, the documentation string of
-    the rule will be used as a template and printed once for each row.
+    the rule will be used as a template and printed once for each row
+    in the result set.
 
     As an example, to define a rule 'reserved_prefix' that will
     trigger on any table name that starts with "ts_", you could use
     the following rule::
 
-        @rule('reserved_prefix')
-        def my_rule(cursor):
+        @rule(__name__)
+        def reserved_prefix(cursor):
            'Table "{relname}" starts with the reserved prefix "ts_".'
            cursor.execute("SELECT relname FROM pg_class WHERE left(relname, 3) = 'ts_'")
 
     """
 
     def inner(func):
-        func.name = name
-        RULES[name] = Rule(func, func.__doc__)
+        func.category = path.rpartition('.')[2]
+        RULES.setdefault(func.category, {})[func.__name__] = Rule(func, func.__doc__)
 
     return inner
 
@@ -91,14 +110,14 @@ def check_rules(dbname, user, host, port):
 
     This will check all registered rules.
     """
-    if host is None:
-        host = '/tmp'
-
     conn = psycopg2.connect(dbname=dbname, user=user,
                             host=host, port=port,
                             cursor_factory=RealDictCursor)
-    for name, rule in RULES.items():
-        rule.check_and_report(conn)
+    for category, rules in RULES.items():
+        printer = Printer(category)
+        for name, rule in rules.items():
+            for report in rule.check_and_report(conn):
+                printer.report(report)
 
 # Add all files in this directory to be loaded, except __init__.py
 modules = [
