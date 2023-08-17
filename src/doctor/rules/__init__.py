@@ -6,12 +6,14 @@ necessary.
 
 """
 
-import psycopg2
 import glob
 import importlib
 
 from textwrap import dedent, fill
 from os.path import dirname, basename, isfile, join
+
+import psycopg2
+
 from psycopg2.extras import RealDictCursor
 
 class Printer:
@@ -56,7 +58,7 @@ class Rule:
 
     def __init__(self, func, text):
         """Initialize rule with function and template.
-        
+
         Each rule consists of a function to call that will return a
         list of objects that fail the check and a template text that
         will be printed for each object.
@@ -69,7 +71,7 @@ class Rule:
 
     def check_and_report(self, conn):
         """Check rule and return report on mismatching objects.
-        
+
         conn: Connection to use when checking rule.
         """
         cursor = conn.cursor()
@@ -113,7 +115,7 @@ def check_rules(dbname, user, host, port):
                             cursor_factory=RealDictCursor)
     for category, rules in RULES.items():
         printer = Printer(category)
-        for name, rule in rules.items():
+        for _, rule in rules.items():
             for report in rule.check_and_report(conn):
                 printer.report(report)
 
