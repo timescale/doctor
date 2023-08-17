@@ -24,3 +24,5 @@ Running the tool
 Just call it in a similar manner to how ``psql`` is called::
 
   timescale-doctor my_database
+
+It understands the usual environment variables `PGUSER`, `PGHOST`, `PGDATABASE`, etc.
