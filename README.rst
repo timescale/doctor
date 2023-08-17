@@ -26,3 +26,8 @@ Just call it in a similar manner to how ``psql`` is called::
   timescale-doctor my_database
 
 It understands the usual environment variables `PGUSER`, `PGHOST`, `PGDATABASE`, etc.
+
+Writing new rules
+-----------------
+
+Instructions for writing new rules are available in the `README in the rules package <src/doctor/rules/README.rst>`_.
