@@ -7,21 +7,23 @@ any files added to this directory.
 
 The ``__init__.py`` file defines some basic support functions, in
 particular the ``rule`` decorator that you can use to create a new
-rule::
+rule:
 
-    QUERY = """
-    SELECT relname,
-	   indexrelname,
-	       pg_size_pretty(pg_relation_size(i.indexrelid)) AS index_size,
-	       idx_scan
-    FROM pg_stat_user_indexes ui JOIN pg_index i USING (indexrelid)
-    WHERE NOT indisunique AND idx_scan = 0;
-    """
+.. code-block:: python
 
-    from . import rule
+   QUERY = """
+   SELECT relname,
+	  indexrelname,
+	  pg_size_pretty(pg_relation_size(i.indexrelid)) AS index_size,
+	  idx_scan
+   FROM pg_stat_user_indexes ui JOIN pg_index i USING (indexrelid)
+   WHERE NOT indisunique AND idx_scan = 0;
+   """
 
-    @rule(__name__)
-    def unused(cursor):
+   from . import rule
+
+   @rule(__name__)
+   def unused(cursor):
       """These indexes are not used. You might consider removing them."""
       cursor.execute(QUERY)
 
