@@ -1,5 +1,7 @@
 """Rules for indexes."""
 
+from . import rule
+
 QUERY = """
 SELECT relname,
        indexrelname,
@@ -8,9 +10,11 @@ FROM pg_stat_user_indexes ui JOIN pg_index i USING (indexrelid)
 WHERE NOT indisunique AND idx_scan = 0;
 """
 
-from . import rule
-
 @rule(__name__)
 def unused(cursor):
-    """Index '{indexrelname}' on table '{relname}' is not used.  Consider removing it and saving {index_size}."""
+    """Index '{indexrelname}' on table '{relname}' is not used.
+
+    Consider removing it and saving {index_size}.
+
+    """
     cursor.execute(QUERY)

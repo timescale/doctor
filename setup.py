@@ -12,12 +12,12 @@ from setuptools import setup, find_packages
 def read(rel_path: str) -> str:
     """Read a file and return its contents."""
     here = os.path.abspath(os.path.dirname(__file__))
-    with open(os.path.join(here, rel_path)) as fp:
-        return fp.read()
+    with open(os.path.join(here, rel_path), encoding='ascii') as infile:
+        return infile.read()
 
 def get_version(rel_path: str) -> str:
     """Read the version from the given file.
-    
+
     Format for the version looks like this::
 
         __version__ = "0.9"
@@ -60,6 +60,6 @@ setup(
     entry_points={
         "console_scripts": [
             "timescale-doctor=doctor:main",
-        ],        
+        ],
     },
 )
