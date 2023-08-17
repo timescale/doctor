@@ -9,8 +9,8 @@ necessary.
 import psycopg2
 import glob
 import importlib
-import textwrap
 
+from textwrap import dedent, fill
 from os.path import dirname, basename, isfile, join
 from psycopg2.extras import RealDictCursor
 
@@ -21,17 +21,15 @@ class Printer:
         """Create a printer and set the category."""
         self.__category = category
         self.__header_printed = False
-        self.__wrapper = textwrap.TextWrapper(
-            initial_indent="- ",
-            subsequent_indent="  ",
-        )
 
     def report(self, report):
         """Print a report and the category if not printed."""
         if not self.__header_printed:
             print(f"{self.__category}:")
             self.__header_printed = True
-        print(self.__wrapper.fill(report))
+        print(fill(dedent(report),
+                   initial_indent="- ",
+                   subsequent_indent="  "))
 
 # Rules are organized in a two-level hierarchy with the category as
 # the top-level object and the functions below.
