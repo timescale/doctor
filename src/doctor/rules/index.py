@@ -12,5 +12,5 @@ from . import rule
 
 @rule(__name__)
 def unused(cursor):
-  """Index '{indexrelname}' on table '{relname}' is not used: consider removing it and saving {index_size}."""
-  cursor.execute(QUERY)
+    """Index '{indexrelname}' on table '{relname}' is not used.  Consider removing it and saving {index_size}."""
+    cursor.execute(QUERY)
