@@ -1,6 +1,8 @@
 """Rules for hypertables."""
 
-QUERY = """
+from . import rule
+
+CANDIDATE_QUERY = """
 SELECT relid::regclass AS table,
        pt.typname AS coltype,
        psui.idx_scan,
@@ -20,8 +22,6 @@ SELECT relid::regclass AS table,
     AND pc.relpages > 10;
 """
 
-from . import rule
-
 @rule(__name__)
 def check_rule(cursor):
     """Table might benefit from being transformed to a hypertable.
@@ -32,4 +32,23 @@ def check_rule(cursor):
     4. There are rows in '{table}'
     5. There are more than 10 pages allocated to '{table}'.
     """
-    cursor.execute(QUERY)
+    cursor.execute(CANDIDATE_QUERY)
+
+PERMISSION_QUERY = """
+WITH tables AS (
+    SELECT format('%I.%I', ht.schema_name, ht.table_name)::regclass as hypertable,
+           format('%I.%I', ch.schema_name, ch.table_name)::regclass as chunk
+      FROM _timescaledb_catalog.hypertable ht
+      JOIN _timescaledb_catalog.chunk ch
+        ON ch.hypertable_id = ht.id)
+SELECT hypertable,
+       chunk
+  FROM tables
+ WHERE (SELECT relacl FROM pg_class WHERE oid = hypertable)
+       IS DISTINCT FROM (SELECT relacl FROM pg_class WHERE oid = chunk);
+"""
+
+@rule(__name__)
+def chunk_permissions(cursor):
+    """Chunk '{chunk}' have different permissions from hypertable '{hypertable}'."""
+    cursor.execute(PERMISSION_QUERY)
