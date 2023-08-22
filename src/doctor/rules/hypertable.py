@@ -1,6 +1,8 @@
 """Rules for hypertables."""
 
-from . import rule
+from dataclasses import dataclass
+
+import doctor
 
 CANDIDATE_QUERY = """
 SELECT relid::regclass AS table,
@@ -22,17 +24,24 @@ SELECT relid::regclass AS table,
     AND pc.relpages > 10;
 """
 
-@rule(__name__)
-def check_rule(cursor):
-    """Table might benefit from being transformed to a hypertable.
+CANDIDATE_DETAIL = """
+Table might benefit from being transformed to a hypertable.
 
-    1. The table '{table}' has a column '{colname}' of timestamp type '{coltype}'
-    2. The table '{table}' is not partitioned
-    3. There are index scans done on '{table}'
-    4. There are rows in '{table}'
-    5. There are more than 10 pages allocated to '{table}'.
-    """
-    cursor.execute(CANDIDATE_QUERY)
+1. The table '{table}' has a column '{colname}' of timestamp type '{coltype}'
+2. The table '{table}' is not partitioned
+3. There are index scans done on '{table}'
+4. There are rows in '{table}'
+5. There are more than 10 pages allocated to '{table}'.
+"""
+
+@doctor.register
+@dataclass
+class HypertableCandidate(doctor.Rule):
+    """Detect candidate hypertable."""
+
+    query: str = CANDIDATE_QUERY
+    detail: str = CANDIDATE_DETAIL
+    message: str = "Table {table} might benefit from being transformed to a hypertable."
 
 PERMISSION_QUERY = """
 WITH tables AS (
@@ -48,7 +57,10 @@ SELECT hypertable,
        IS DISTINCT FROM (SELECT relacl FROM pg_class WHERE oid = chunk);
 """
 
-@rule(__name__)
-def chunk_permissions(cursor):
-    """Chunk '{chunk}' have different permissions from hypertable '{hypertable}'."""
-    cursor.execute(PERMISSION_QUERY)
+@doctor.register
+@dataclass
+class ChunkPermissions(doctor.Rule):
+    """Detect bad chunk permissions."""
+
+    query: str = PERMISSION_QUERY
+    message: str = "Chunk '{chunk}' have different permissions from hypertable '{hypertable}'."

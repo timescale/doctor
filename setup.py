@@ -59,7 +59,7 @@ setup(
       ],
     entry_points={
         "console_scripts": [
-            "timescale-doctor=doctor:main",
+            "timescale-doctor=doctor.cli:main",
         ],
     },
 )
