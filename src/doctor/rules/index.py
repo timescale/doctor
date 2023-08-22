@@ -1,20 +1,26 @@
 """Rules for indexes."""
 
-from . import rule
+from dataclasses import dataclass
 
-QUERY = """
-SELECT relname,
+import doctor
+
+UNUSED_QUERY = """
+SELECT relid::regclass as relation,
        indexrelname,
        pg_size_pretty(pg_relation_size(i.indexrelid)) AS index_size
 FROM pg_stat_user_indexes ui JOIN pg_index i USING (indexrelid)
-WHERE NOT indisunique AND idx_scan = 0;
+WHERE NOT indisunique
+  AND idx_scan = 0
+  AND schemaname NOT LIKE '_timescaledb%';
 """
 
-@rule(__name__)
-def unused(cursor):
-    """Index '{indexrelname}' on table '{relname}' is not used.
+@doctor.register
+@dataclass
+class UnusedIndex(doctor.Rule):
+    """Find all unused indexes."""
 
-    Consider removing it and saving {index_size}.
-
-    """
-    cursor.execute(QUERY)
+    query: str = UNUSED_QUERY
+    message: str = "index '{indexrelname}' on table '{relation}' is not used"
+    detail: str = "Index {indexrelname} is not used and occupied {index_size}."
+    hint: str = ("Since the index '{indexrelname}' on table '{relation}' is not used,"
+                 " you can remove it.")
