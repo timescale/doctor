@@ -25,7 +25,8 @@ Just call it in a similar manner to how ``psql`` is called::
 
   timescale-doctor my_database
 
-It understands the usual environment variables `PGUSER`, `PGHOST`, `PGDATABASE`, etc.
+It understands the usual environment variables `PGUSER`, `PGHOST`, `PGDATABASE`, etc. Note that it do *not* understand
+PostgreSQL URLs yet. See `Support PostgreSQL URLs for connection <https://github.com/timescale/doctor/issues/5>`_.
 
 Writing new rules
 -----------------
