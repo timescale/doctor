@@ -12,7 +12,7 @@ SELECT format('%I.%I', schema_name, table_name)::regclass AS relation, s.attname
     ON s.attname = c.attname
    AND s.schemaname = h.schema_name
    AND s.tablename = h.table_name
- WHERE segmentby_column_index IS NOT NULL AND n_distinct < 0;
+ WHERE segmentby_column_index IS NOT NULL AND inherited AND n_distinct < 0;
 """
 
 @doctor.register
@@ -25,9 +25,10 @@ class LinearSegmentby(doctor.Rule):
         "Column '{attname}' in hypertable '{relation}' has no distinct values."
     )
     detail: str = (
-        "Column '{attname}' in hypertable '{relation}' as segment-by column  is"
+        "Column '{attname}' in hypertable '{relation}' as segment-by column is"
         " probably not a good choice since the number of values seems to grow"
         " with the number of rows of the table."
+
     )
 
 POINTLESS_QUERY = """
@@ -38,8 +39,9 @@ SELECT format('%I.%I', schema_name, table_name)::regclass AS relation, s.attname
     ON s.attname = c.attname
    AND s.schemaname = h.schema_name
    AND s.tablename = h.table_name
- WHERE segmentby_column_index IS NOT NULL AND n_distinct = 1;
+ WHERE segmentby_column_index IS NOT NULL AND inherited AND n_distinct = 1;
 """
+
 @doctor.register
 @dataclass
 class PointlessSegmentBy(doctor.Rule):
@@ -47,7 +49,7 @@ class PointlessSegmentBy(doctor.Rule):
 
     query: str = POINTLESS_QUERY
     message: str = (
-        "Column '{attname}' in hypertable '{relation}' as segment-by column is pointless"
+        "Column '{attname}' in hypertable '{relation}' is superfluous."
     )
     detail: str = (
         "Column '{attname}' in hypertable '{relation}' as segment-by column is pointless"
