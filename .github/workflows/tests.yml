@@ -1,0 +1,57 @@
+# This file contains checks to run unit tests.
+#
+# Special thank you to pylint-dev project at GitHub where inspiration
+# was taken.
+name: unit tests
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+
+jobs:
+  tests-linux:
+    name: run / ${{ matrix.python-version }} / Linux
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10"]
+    services:
+      timescale:
+        image: timescale/timescaledb:latest-pg15
+        env:
+          POSTGRES_PASSWORD: xyzzy
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4.0.0
+      - name: Set up Python ${{ matrix.python-version }}
+        id: python
+        uses: actions/setup-python@v4.7.0
+        with:
+          python-version: ${{ matrix.python-version }}
+          check-latest: true
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            echo "No requirements.txt file found"
+          fi
+      - name: Run PyTest
+        env:
+          PGHOST: localhost
+          PGUSER: postgres
+          PGPASSWORD: xyzzy
+          PGPORT: 5432
+        run: python -m pytest 
