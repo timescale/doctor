@@ -89,6 +89,7 @@ def register(cls):
         raise NameError('Class did not define a message', name='message')
     category = cls.__module__.rpartition('.')[2]
     RULES.setdefault(category, {})[cls.__name__] = cls
+    return cls
 
 
 def check_rules(dbname, user, host, port):
