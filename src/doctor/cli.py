@@ -18,8 +18,8 @@ import argparse
 import getpass
 import os
 
-from . import check_rules
-from .rules import load_rules
+from doctor import check_rules
+from doctor.rules import load_rules
 
 
 def parse_arguments():

@@ -28,7 +28,7 @@ SELECT format('%I.%I', schema_name, table_name)::regclass AS relation, s.attname
 """
 
 @doctor.register
-class LinearSegmentby(doctor.Rule):
+class LinearSegmentBy(doctor.Rule):
     """Detect segmentby column for compressed table."""
 
     query: str = LINEAR_QUERY

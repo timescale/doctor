@@ -24,12 +24,18 @@ import importlib
 
 from os.path import dirname, basename, isfile, join
 
+def is_rule_file(fname):
+    """Check if file is a rules file."""
+    if not isfile(fname):
+        return False
+    if fname.endswith(['__init__.py', '_test.py']) or fname.startswith("test_"):
+        return False
+    return True
+
 def load_rules():
     """Load all rules from package."""
     # Add all files in this directory to be loaded, except __init__.py
-    modules = [
-        basename(f)[:-3] for f in glob.glob(join(dirname(__file__), "*.py"))
-        if isfile(f) and not f.endswith('__init__.py')
-    ]
+    pyfiles = glob.glob(join(dirname(__file__), "*.py"))
+    modules = [basename(f)[:-3] for f in pyfiles if is_rule_file(f)]
     for module in modules:
         importlib.import_module(f".{module}", __name__)
