@@ -34,11 +34,14 @@ class TestCompressionRules(unittest.TestCase):
 
     def setUp(self):
         """Set up unit tests for compression rules."""
-        user = (os.getenv("PGUSER") or os.getlogin())
+        user = os.getenv("PGUSER")
         host = os.getenv("PGHOST")
         port = os.getenv("PGPORT") or "5432"
-        dbname = (os.getenv("PGDATABASE") or os.getlogin())
-        self.__conn = psycopg2.connect(dbname=dbname, user=user, host=host, port=port,
+        dbname = os.getenv("PGDATABASE")
+        password = os.getenv("PGPASSWORD")
+        print(f"connecting to {host}:{port} database {dbname}")
+        self.__conn = psycopg2.connect(dbname=dbname, user=user, host=host,
+                                       password=password, port=port,
                                        cursor_factory=RealDictCursor)
         table = Hypertable("conditions", "time", {
                            'time': "timestamptz not null",
