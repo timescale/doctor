@@ -15,6 +15,7 @@
 """Command-line interface to Timescale Doctor."""
 
 import argparse
+import getpass
 import os
 
 from . import check_rules
@@ -25,12 +26,12 @@ def parse_arguments():
     """Parse arguments to command-line tool."""
     parser = argparse.ArgumentParser(description=__doc__, add_help=False)
     parser.add_argument('-U', '--username', dest='user',
-                        default=(os.getenv("PGUSER") or os.getlogin()),
+                        default=(os.getenv("PGUSER") or getpass.getuser()),
                         help='user name to connect as')
     parser.add_argument('-d', '--dbname', metavar='DBNAME', dest='dbname',
                         help='name of the database to connect to')
     parser.add_argument('dbname', metavar='DBNAME', nargs='?',
-                        default=(os.getenv("PGDATABASE") or os.getlogin()),
+                        default=(os.getenv("PGDATABASE") or getpass.getuser()),
                         help='name of the database to connect to')
     parser.add_argument('-p', '--port', metavar='PORT', default='5432',
                         help='database server port number')
