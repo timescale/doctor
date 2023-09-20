@@ -44,7 +44,7 @@ def get_version(rel_path: str) -> str:
 
 
 setup(
-    name = "doctor",
+    name = "timescale-doctor",
     version = get_version("src/doctor/__init__.py"),
     author = "Mats Kindahl",
     author_email = "mats@timescale.com",
@@ -62,7 +62,7 @@ setup(
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
-        "License :: OSI Approved :: Apache 2 License",
+        "License :: OSI Approved :: Apache Software License",
         "Topic :: Utilities",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
