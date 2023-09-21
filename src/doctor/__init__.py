@@ -88,5 +88,3 @@ def check_rules(dbname, user, host, port):
                     header_printed = True
                 clean = dedent(report)
                 print(fill(clean, initial_indent="- ", subsequent_indent="  "))
-
-__version__ = "0.0.1"
