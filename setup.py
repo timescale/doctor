@@ -45,7 +45,7 @@ def get_version(rel_path: str) -> str:
 
 setup(
     name = "timescale-doctor",
-    version = get_version("src/doctor/__init__.py"),
+    version = get_version("src/doctor/version.py"),
     author = "Mats Kindahl",
     author_email = "mats@timescale.com",
     description ="Analyze a database and provide recommendations",
