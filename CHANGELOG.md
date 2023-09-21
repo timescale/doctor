@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.1](https://github.com/timescale/doctor/compare/v0.1.0...v0.1.1) (2023-09-21)
+
+
+### Bug Fixes
+
+* use getpass.getuser() instead of os.getlogin() ([978cb9a](https://github.com/timescale/doctor/commit/978cb9a7ee500f36c81c1b8d0161af0835824444))
+
+
+### Miscellaneous
+
+* fix version bump in release-please ([c62419d](https://github.com/timescale/doctor/commit/c62419dfba165f01ac62fcf8b772b1eef2a7c479))
+
 ## 0.1.0 (2023-09-21)
 
 
