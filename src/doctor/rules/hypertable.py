@@ -60,7 +60,8 @@ WITH tables AS (
            format('%I.%I', ch.schema_name, ch.table_name)::regclass as chunk
       FROM _timescaledb_catalog.hypertable ht
       JOIN _timescaledb_catalog.chunk ch
-        ON ch.hypertable_id = ht.id)
+        ON ch.hypertable_id = ht.id
+     WHERE NOT dropped)
 SELECT hypertable,
        chunk
   FROM tables
