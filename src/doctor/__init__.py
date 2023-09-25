@@ -65,7 +65,7 @@ class Rule(ABC):
         with conn.cursor() as cursor:
             cursor.execute("SELECT extname, extversion FROM pg_extension WHERE extname IN %s",
                            (tuple(self.dependencies.keys()),)) # pylint: disable=E1101
-            return {row[0]:row[1] for row in cursor}
+            return {row["extname"]: row["extversion"] for row in cursor}
 
 
     def execute(self, conn, text):
