@@ -14,8 +14,6 @@
 
 """Rules for hypertables."""
 
-from dataclasses import dataclass
-
 import doctor
 
 CANDIDATE_QUERY = """
@@ -49,7 +47,6 @@ Table might benefit from being transformed to a hypertable.
 """
 
 @doctor.register
-@dataclass
 class HypertableCandidate(doctor.Rule):
     """Detect candidate hypertable."""
 
@@ -72,9 +69,11 @@ SELECT hypertable,
 """
 
 @doctor.register
-@dataclass
 class ChunkPermissions(doctor.Rule):
     """Detect bad chunk permissions."""
 
     query: str = PERMISSION_QUERY
     message: str = "Chunk '{chunk}' have different permissions from hypertable '{hypertable}'."
+    dependencies: dict = {
+        'timescaledb': '1.0'
+    }

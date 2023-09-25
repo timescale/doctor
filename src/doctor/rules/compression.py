@@ -14,8 +14,6 @@
 
 """Rules for compressed hypertables."""
 
-from dataclasses import dataclass
-
 import doctor
 
 LINEAR_QUERY = """
@@ -30,7 +28,6 @@ SELECT format('%I.%I', schema_name, table_name)::regclass AS relation, s.attname
 """
 
 @doctor.register
-@dataclass
 class LinearSegmentby(doctor.Rule):
     """Detect segmentby column for compressed table."""
 
@@ -44,6 +41,9 @@ class LinearSegmentby(doctor.Rule):
         " with the number of rows of the table."
 
     )
+    dependencies: dict = {
+        'timescaledb': '1.0'
+    }
 
 POINTLESS_QUERY = """
 SELECT format('%I.%I', schema_name, table_name)::regclass AS relation, s.attname
@@ -57,7 +57,6 @@ SELECT format('%I.%I', schema_name, table_name)::regclass AS relation, s.attname
 """
 
 @doctor.register
-@dataclass
 class PointlessSegmentBy(doctor.Rule):
     """Detect pointless segmentby column in compressed table."""
 
@@ -69,3 +68,6 @@ class PointlessSegmentBy(doctor.Rule):
         "Column '{attname}' in hypertable '{relation}' as segment-by column is pointless"
         " since it contains a single value."
     )
+    dependencies: dict = {
+        'timescaledb': '1.0'
+    }

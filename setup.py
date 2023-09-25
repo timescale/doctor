@@ -69,7 +69,8 @@ setup(
         "Programming Language :: Python :: 3 :: Only",
     ],
     install_requires=[
-          'psycopg2',
+        'psycopg2',
+        'packaging',
       ],
     entry_points={
         "console_scripts": [

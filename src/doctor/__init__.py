@@ -21,6 +21,7 @@ database.
 from textwrap import dedent, fill
 from os.path import dirname, basename, isfile, join
 from abc import ABC
+from packaging.version import parse
 
 import psycopg2
 
@@ -54,14 +55,31 @@ class Rule(ABC):
       optional field. If no field is given, the value of the "message"
       field will be used.
 
+    dependencies: Dictionary with dependencies on packages and what
+    versions that are required.
+
     """
+
+    def get_versions(self, conn):
+        """Get extension versions."""
+        with conn.cursor() as cursor:
+            cursor.execute("SELECT extname, extversion FROM pg_extension WHERE extname IN %s",
+                           (tuple(self.dependencies.keys()),)) # pylint: disable=E1101
+            return {row["extname"]: row["extversion"] for row in cursor}
+
 
     def execute(self, conn, text):
         """Execute rule and return one string for each mismatching object."""
-        cursor = conn.cursor()
-        cursor.execute(self.query) # pylint: disable=E1101
-        return [text.format(**kwrds) for kwrds in cursor]
-
+        with conn.cursor() as cursor:
+            # Check that all dependencies are met. If not, we do not
+            # execute the rule.
+            if hasattr(self, 'dependencies'):
+                versions = self.get_versions(conn)
+                for ext,req in self.dependencies.items(): # pylint: disable=E1101
+                    if ext not in versions or parse(req) > parse(versions[ext]):
+                        return []
+            cursor.execute(self.query) # pylint: disable=E1101
+            return [text.format(**kwrds) for kwrds in cursor]
 
 def register(cls):
     """Register a rule."""
