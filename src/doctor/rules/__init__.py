@@ -28,7 +28,7 @@ def is_rule_file(fname):
     """Check if file is a rules file."""
     if not isfile(fname):
         return False
-    if fname.endswith(['__init__.py', '_test.py']) or fname.startswith("test_"):
+    if fname.endswith(('__init__.py', '_test.py')) or fname.startswith("test_"):
         return False
     return True
 
