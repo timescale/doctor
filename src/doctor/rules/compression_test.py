@@ -14,16 +14,12 @@
 
 """Unit tests for compressed hypertable rules."""
 
-import os
-import unittest
-import psycopg2
-
-from psycopg2.extras import RealDictCursor
 from timescaledb import Hypertable
 
+from doctor.unittest import TimescaleDBTestCase
 from doctor.rules.compression import LinearSegmentBy, PointlessSegmentBy
 
-class TestCompressionRules(unittest.TestCase):
+class TestCompressionRules(TimescaleDBTestCase):
     """Test compression rules.
 
     This will create a hypertable where we segment-by a column that
@@ -34,24 +30,15 @@ class TestCompressionRules(unittest.TestCase):
 
     def setUp(self):
         """Set up unit tests for compression rules."""
-        user = os.getenv("PGUSER")
-        host = os.getenv("PGHOST")
-        port = os.getenv("PGPORT") or "5432"
-        dbname = os.getenv("PGDATABASE")
-        password = os.getenv("PGPASSWORD")
-        print(f"connecting to {host}:{port} database {dbname}")
-        self.__conn = psycopg2.connect(dbname=dbname, user=user, host=host,
-                                       password=password, port=port,
-                                       cursor_factory=RealDictCursor)
         table = Hypertable("conditions", "time", {
                            'time': "timestamptz not null",
                            'device_id': "integer",
                            'user_id': "integer",
                            'temperature': "float"
         })
-        table.create(self.__conn)
+        table.create(self.connection)
 
-        with self.__conn.cursor() as cursor:
+        with self.connection.cursor() as cursor:
             cursor.execute(
                 "INSERT INTO conditions "
                 "SELECT time, (random()*30)::int, 1, random()*80 - 40 "
@@ -64,17 +51,13 @@ class TestCompressionRules(unittest.TestCase):
                 ")"
                 )
             cursor.execute("ANALYZE conditions")
-        self.__conn.commit()
+        self.connection.commit()
 
     def tearDown(self):
         """Tear down compression rules test."""
-        with self.__conn.cursor() as cursor:
+        with self.connection.cursor() as cursor:
             cursor.execute("DROP TABLE conditions")
-        self.__conn.commit()
-
-    def run_rule(self, rule):
-        """Run rule and return messages."""
-        return rule.execute(self.__conn, rule.message)
+        self.connection.commit()
 
     def test_segmentby(self):
         """Test rule for detecting bad choice for segment-by column."""
