@@ -2,7 +2,7 @@
 #
 # Special thank you to pylint-dev project at GitHub where inspiration
 # was taken.
-name: unit tests
+name: Unit tests
 
 on:
   pull_request:
@@ -12,23 +12,12 @@ on:
 
 jobs:
   tests-linux:
-    name: run / ${{ matrix.python-version }} / Linux
+    name: Linux / Python ${{ matrix.python-version }} / Postgres ${{ matrix.postgres-version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: ["3.8", "3.9", "3.10"]
-    services:
-      timescale:
-        image: timescale/timescaledb:latest-pg15
-        env:
-          POSTGRES_PASSWORD: xyzzy
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
+        postgres-version: ["14", "15"]
 
     timeout-minutes: 25
     steps:
@@ -50,8 +39,6 @@ jobs:
           fi
       - name: Run PyTest
         env:
-          PGHOST: localhost
-          PGUSER: postgres
-          PGPASSWORD: xyzzy
-          PGPORT: 5432
+          TEST_CONTAINER_TIMESCALE: timescale/timescaledb:latest-pg${{ matrix.postgres-version }}
+          TEST_CONTAINER_POSTGRES: postgres:${{ matrix.postgres-version }}
         run: python -m pytest 
