@@ -18,7 +18,7 @@ import argparse
 import getpass
 import os
 
-from doctor import check_rules
+from doctor import check_rules, list_rules
 from doctor.rules import load_rules
 
 
@@ -42,10 +42,25 @@ def parse_arguments():
     parser.add_argument("--verbose", "-v", dest="log_level",
                         action="count", default=2,
                         help='Verbose logging. More options give higher verbosity.')
-    return parser.parse_args()
+    parser.add_argument("--list", nargs='?', const='*', metavar="PATTERN",
+                        default=argparse.SUPPRESS,
+                        help=("List rules matching pattern. "
+                              "If no pattern is given, will list all rules"))
+    parser.add_argument(
+        '--show', choices=['brief', 'message', 'details'], default="brief",
+        help=("What to show from the rule. The brief description is always shown, "
+              "but it is possible to show the message and the detailed message as "
+              "well.")
+    )
+    return parser, parser.parse_args()
 
 def main():
     """Run application."""
     load_rules()
-    args = parse_arguments()
-    check_rules(user=args.user, dbname=args.dbname, port=args.port, host=args.host)
+    parser, args = parse_arguments()
+    if args.show and 'list' not in args:
+        parser.error("called with '--show' but without '--list'")
+    elif 'list' in args:
+        list_rules(args.list, args.show)
+    else:
+        check_rules(user=args.user, dbname=args.dbname, port=args.port, host=args.host)

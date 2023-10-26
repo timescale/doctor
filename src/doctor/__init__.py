@@ -18,7 +18,8 @@ This tool will provide recommendations regarding your timeseries
 database.
 """
 
-from textwrap import dedent, fill
+from fnmatch import fnmatch
+from textwrap import dedent, fill, TextWrapper
 from os.path import dirname, basename, isfile, join
 from abc import ABC
 from packaging.version import parse
@@ -91,6 +92,27 @@ def register(cls):
     RULES.setdefault(category, {})[cls.__name__] = cls
     return cls
 
+
+def list_rules(pattern, show):
+    """List all rules matching pattern.
+
+    Will list rules matching `pattern`, and print detailed message if
+    `details` is true. Note that since the detailed message contains
+    variables for expansion, and there is no replacements to use, the
+    message with the placeholders will be printed.
+    """
+    wrapper = TextWrapper(initial_indent="    ", subsequent_indent="    ")
+    for category, rules in RULES.items():
+        for name, cls in rules.items():
+            fullname = f"{category}.{name}"
+            if fnmatch(fullname, pattern):
+                print(f"{fullname}:")
+                print(wrapper.fill(cls.__doc__))
+                if show in ("details", "message"):
+                    print("\n    == MESSAGE ==", end="\n\n")
+                    print(wrapper.fill(cls.message), end="\n\n")
+                    if show == "details" and hasattr(cls, 'detail'):
+                        print(wrapper.fill(cls.detail), end="\n\n")
 
 def check_rules(dbname, user, host, port):
     """Check all rules with the database."""
