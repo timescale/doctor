@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.2.0](https://github.com/timescale/doctor/compare/v0.1.1...v0.2.0) (2023-11-02)
+
+
+### Features
+
+* add options to list rules ([8e8a6b1](https://github.com/timescale/doctor/commit/8e8a6b130e0b7c5ee515d711b1ff58d3a4730e8a)), closes [#37](https://github.com/timescale/doctor/issues/37)
+* add rule dependencies ([#31](https://github.com/timescale/doctor/issues/31)) ([e9411ae](https://github.com/timescale/doctor/commit/e9411aeb3b65fab29e4e428298f8710c7bbf094e))
+* add unit tests ([4c9e843](https://github.com/timescale/doctor/commit/4c9e84366b537cde230241a15b702ac8a4a14168))
+
+
+### Bug Fixes
+
+* only check permission for existing chunks ([1e5362d](https://github.com/timescale/doctor/commit/1e5362d390298f9ca7c48172c3ee2789d9944b0a)), closes [#26](https://github.com/timescale/doctor/issues/26)
+
 ## [0.1.1](https://github.com/timescale/doctor/compare/v0.1.0...v0.1.1) (2023-09-21)
 
 
