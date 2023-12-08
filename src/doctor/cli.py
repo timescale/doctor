@@ -47,7 +47,7 @@ def parse_arguments():
                         help=("List rules matching pattern. "
                               "If no pattern is given, will list all rules"))
     parser.add_argument(
-        '--show', choices=['brief', 'message', 'details'], default="brief",
+        '--show', choices=['brief', 'message', 'details'], default=None,
         help=("What to show from the rule. The brief description is always shown, "
               "but it is possible to show the message and the detailed message as "
               "well.")
@@ -61,6 +61,8 @@ def main():
     if args.show and 'list' not in args:
         parser.error("called with '--show' but without '--list'")
     elif 'list' in args:
+        if args.show is None:
+            args.show = 'brief'
         list_rules(args.list, args.show)
     else:
         check_rules(user=args.user, dbname=args.dbname, port=args.port, host=args.host)
