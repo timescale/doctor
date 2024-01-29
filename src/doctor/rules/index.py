@@ -38,3 +38,22 @@ class UnusedIndex(doctor.Rule):
     detail: str = "Index {indexrelname} is not used and occupied {index_size}."
     hint: str = ("Since the index '{indexrelname}' on table '{relation}' is not used,"
                  " you can remove it.")
+
+DUPLICATE_INDEX_QUERY = """
+SELECT indrelid::regclass as relation,
+       a.indexrelid::regclass as index1,
+       b.indexrelid::regclass as index2
+  FROM pg_index a JOIN pg_index b USING (indrelid, indkey)
+ WHERE a.indexrelid != b.indexrelid;
+"""
+
+@doctor.register
+@dataclass
+class DuplicateIndex(doctor.Rule):
+    """Find duplicate indexes."""
+
+    query: str = DUPLICATE_INDEX_QUERY
+    message: str = "index '{index1}' and '{index2}' seems to be duplicates"
+    detail: str = ("Index '{index1}' and '{index2}' are on the same relation "
+                   "'{relation}' and has the same keys.")
+    hint: str = "You might want to remove one of the indexes to save space."
