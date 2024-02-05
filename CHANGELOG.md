@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/timescale/doctor/compare/v0.2.0...v0.3.0) (2024-02-05)
+
+
+### Features
+
+* check for duplicate indexes ([b5aa149](https://github.com/timescale/doctor/commit/b5aa14919ff678d147a81168b507ed1ea76ed14a)), closes [#42](https://github.com/timescale/doctor/issues/42)
+
 ## [0.2.0](https://github.com/timescale/doctor/compare/v0.1.1...v0.2.0) (2023-11-02)
 
 
