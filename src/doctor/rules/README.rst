@@ -65,4 +65,19 @@ same manner as for `formatted string literals`_. Note that there is
 one message generated for each row of the result set, which are then
 combined into a list.
 
+Writing tests
+-------------
+
+Once you have a rule written, adding tests is
+straightforward. Depending on whether the rule requires
+``timescaledb`` to be installed or not, you can inherit from either
+`TimescaleDBTestCase` or `PostgreSQLTestCase`.
+
+Running tests
+-------------
+
+Running tests is easiest done using `pytest` in the top-level directory::
+
+  pytest
+
 .. _formatted string literals: https://docs.python.org/3/reference/lexical_analysis.html#f-strings
