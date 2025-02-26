@@ -114,11 +114,17 @@ def list_rules(pattern, show):
                     if show == "details" and hasattr(cls, 'detail'):
                         print(wrapper.fill(cls.detail), end="\n\n")
 
-def check_rules(dbname, user, host, port):
+
+def check_rules(args):
     """Check all rules with the database."""
-    conn = psycopg2.connect(dbname=dbname, user=user,
-                            host=host, port=port,
-                            cursor_factory=RealDictCursor)
+    conninfo = {
+        'dbname': args.dbname,
+        'user': args.user,
+        'password': args.password,
+        'host': '/var/run/postgresql' if args.host is None else args.host,
+        'port': args.port,
+    }
+    conn = psycopg2.connect(**conninfo, cursor_factory=RealDictCursor)
     for category, rules in RULES.items():
         header_printed = False
         for _, cls in rules.items():
