@@ -17,6 +17,7 @@
 import argparse
 import getpass
 import os
+import configparser
 
 from doctor import check_rules, list_rules
 from doctor.rules import load_rules
@@ -28,6 +29,11 @@ def parse_arguments():
     parser.add_argument('-U', '--username', dest='user',
                         default=(os.getenv("PGUSER") or getpass.getuser()),
                         help='user name to connect as')
+    parser.add_argument('-W', '--password', dest='password',
+                        default=os.getenv("PGPASSWORD"),
+                        help='Password to use when connecting')
+    parser.add_argument('-s', '--service', metavar="NAME",
+                        help="Service used. Read from ~/.pg_services.conf")
     parser.add_argument('-d', '--dbname', metavar='DBNAME', dest='dbname',
                         help='name of the database to connect to')
     parser.add_argument('dbname', metavar='DBNAME', nargs='?',
@@ -46,13 +52,30 @@ def parse_arguments():
                         default=argparse.SUPPRESS,
                         help=("List rules matching pattern. "
                               "If no pattern is given, will list all rules"))
+    parser.add_argument('--sslmode', metavar='MODE',
+                        default=os.getenv("PGSSLMODE"),
+                        help='mode for negotiating SSL connection')
     parser.add_argument(
         '--show', choices=['brief', 'message', 'details'], default=None,
         help=("What to show from the rule. The brief description is always shown, "
               "but it is possible to show the message and the detailed message as "
               "well.")
     )
-    return parser, parser.parse_args()
+
+    args = parser.parse_args()
+
+    if args.service is not None:
+        config = configparser.ConfigParser()
+        config.read(os.path.expanduser('~/.pg_service.conf'))
+        args.host = config.get(args.service, 'host')
+        args.port = config.get(args.service, 'port')
+        args.user = config.get(args.service, 'user')
+        args.password = config.get(args.service, 'password')
+        args.dbname = config.get(args.service, 'dbname')
+        args.sslmode = config.get(args.service, 'sslmode', fallback=None)
+
+    return parser, args
+
 
 def main():
     """Run application."""
@@ -65,4 +88,4 @@ def main():
             args.show = 'brief'
         list_rules(args.list, args.show)
     else:
-        check_rules(user=args.user, dbname=args.dbname, port=args.port, host=args.host)
+        check_rules(args)
