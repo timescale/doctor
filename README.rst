@@ -22,6 +22,33 @@ It understands the usual environment variables `PGUSER`, `PGHOST`,
 yet. See `Support PostgreSQL URLs for connection
 <https://github.com/timescale/doctor/issues/5>`_.
 
+Rules that are checked
+----------------------
+
+The Doctor currently has the following rules:
+
+* `index.UnusedIndex`: If an index is unused, it can likely be
+  removed. This will (of course) generate a false positive for
+  databases that have not seen a lot of active use.
+
+* `hypertable.HypertableCandidate`: Detect tables that can be turned
+  into a hypertable. This is mostly beneficial for large tables, but
+  this rule checks if there are 10 pages or more, which is kind of
+  arbitrary.
+
+* `hypertable.ChunkPermissions`: Check that all chunks have
+  permissions that are compatible with the hypertable. If that is not
+  the case, strange errors can be generated for queries on the table.
+
+* `compression.LinearSegmentBy`: If a compressed table uses a
+  segment-by column that increases linearly with rows added, it is
+  probably not a good choice for segment-by.
+
+* `compression.PointlessSegmentBy`: If the compressed table is using a
+  column that is estimated to have a single value, it is usually
+  pointless to use as a segment-by.
+
+
 Writing new rules
 -----------------
 
