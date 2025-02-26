@@ -17,7 +17,7 @@
 from timescaledb import Table
 
 from doctor.unittest import PostgreSQLTestCase
-from doctor.rules.index import DuplicateIndex
+from doctor.rules.index import DuplicateIndex, UnusedIndex
 
 class TestIndexRules(PostgreSQLTestCase):
     """Test index checking rules."""
@@ -30,15 +30,23 @@ class TestIndexRules(PostgreSQLTestCase):
         })
         table.create(self.connection)
 
+        Table("my_table", {
+            "time": "TIMESTAMPTZ NOT NULL",
+            "device": "INTEGER",
+            "temperature": "FLOAT",
+        }).create(self.connection)
+
         with self.connection.cursor() as cursor:
             cursor.execute("CREATE INDEX index_one ON with_duplicate_index(one,two)")
             cursor.execute("CREATE INDEX index_two ON with_duplicate_index(one,two)")
+            cursor.execute("CREATE INDEX my_index ON my_table(device)")
         self.connection.commit()
 
     def tearDown(self):
         """Tear down unit tests for index checking rules."""
         with self.connection.cursor() as cursor:
             cursor.execute("DROP TABLE with_duplicate_index")
+            cursor.execute("DROP TABLE my_table")
         self.connection.commit()
 
     def test_duplicate(self):
@@ -47,3 +55,10 @@ class TestIndexRules(PostgreSQLTestCase):
         messages.extend(self.run_rule(DuplicateIndex()))
         self.assertIn(DuplicateIndex.message.format(index1="index_one", index2="index_two"),
                       messages)
+
+    def test_unused_index(self):
+        """Test unused index rule."""
+        messages = []
+        messages.extend(self.run_rule(UnusedIndex()))
+        message = UnusedIndex.message.format(indexrelname='my_index', relation='my_table')
+        self.assertIn(message, messages)

@@ -65,4 +65,29 @@ same manner as for `formatted string literals`_. Note that there is
 one message generated for each row of the result set, which are then
 combined into a list.
 
+Writing tests
+-------------
+
+Once you have a rule written, adding tests is
+straightforward. Depending on whether the rule requires
+``timescaledb`` to be installed or not, you can inherit from either
+`TimescaleDBTestCase` or `PostgreSQLTestCase`.
+
+Running tests
+-------------
+
+You need to install `psycopg2`, `pytest`, and `testcontainers` to be
+able to run the tests. If you are on a more recent version of Ubuntu,
+`testcontainers` needs to be installed using `pip`, so the best
+approach is to set up a virtual environment, install the packages, and
+then run the tests::
+
+  python3 -m venv venv
+  source venv/bin/activate
+  pip install psycopg2 pytest testcontainers[postgres]
+
+Running tests is easiest done using `pytest` in the top-level directory::
+
+  pytest
+
 .. _formatted string literals: https://docs.python.org/3/reference/lexical_analysis.html#f-strings
