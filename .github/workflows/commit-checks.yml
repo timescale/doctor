@@ -1,17 +1,14 @@
-name: Commit Checks
-
+name: Lint PR title
 on:
-  pull_request_target:
-    types: [opened, edited, synchronize]
-
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
 permissions:
   pull-requests: read
-
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 jobs:
-  main:
-    name: Validate commit title
-    runs-on: ubuntu-latest
-    steps:
-      - uses: amannn/action-semantic-pull-request@v5
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  lint-pr-title:
+    uses: timescale/cloud-actions/.github/workflows/lint-pr-title.yaml@main
+    with:
+      runner: ubuntu-latest
