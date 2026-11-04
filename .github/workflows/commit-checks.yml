@@ -12,3 +12,4 @@ jobs:
     uses: timescale/cloud-actions/.github/workflows/lint-pr-title.yaml@main
     with:
       runner: ubuntu-latest
+      subject-pattern: '.+'
